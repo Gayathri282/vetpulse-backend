@@ -66,6 +66,46 @@ app.post("/api/auth/register", async (req, res) => {
   }
 });
 
+app.post("/api/auth/google", async (req, res) => {
+  try {
+    const { email, name, credential } = req.body;
+    let userEmail = email;
+    let userName = name || "Google Pet Parent";
+
+    if (credential && !userEmail) {
+      try {
+        const parts = credential.split(".");
+        if (parts.length === 3) {
+          const payload = JSON.parse(Buffer.from(parts[1], "base64").toString("utf-8"));
+          userEmail = payload.email;
+          userName = payload.name || userName;
+        }
+      } catch (e) {}
+    }
+
+    if (!userEmail) {
+      return res.status(400).json({ message: "Google OAuth payload missing email address" });
+    }
+
+    let u = await db.findUserByEmail(userEmail);
+    if (!u) {
+      u = await db.createUser({
+        name: userName,
+        email: userEmail,
+        passwordHash: await bcrypt.hash("GOOGLE_AUTH_" + Date.now(), 10),
+        role: "patient",
+        petName: "Milo",
+        petType: "Dog"
+      });
+    }
+
+    const userWithoutPass = await db.findUserById(u._id);
+    res.json({ token: token(u), user: userWithoutPass });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 function adminOnly(req, res, next) {
   if (req.user && req.user.role === "admin") {
     next();
