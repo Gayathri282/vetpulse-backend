@@ -22,11 +22,11 @@ async function seedInitialData(isMemory = false) {
 
   if (isMemory) {
     if (memoryDB.users.length === 0) {
-      const doctorId = "doc_demo_id_1";
-      const doctor2Id = "doc_demo_id_2";
-      const doctor3Id = "doc_demo_id_3";
-      const adminId = "admin_demo_id";
-      const patientId = "pat_demo_id";
+      const doctorId = "650000000000000000000001";
+      const doctor2Id = "650000000000000000000004";
+      const doctor3Id = "650000000000000000000005";
+      const adminId = "650000000000000000000002";
+      const patientId = "650000000000000000000003";
 
       const doc = {
         _id: doctorId,
@@ -34,12 +34,12 @@ async function seedInitialData(isMemory = false) {
         email: "doctor@vetpulse.demo",
         passwordHash: doctorHash,
         role: "doctor",
-        specialty: "Veterinary Specialist · General Care · Dermatology",
+        specialty: "Senior Veterinary Specialist · Internal Medicine & Dermatology",
         rating: 4.9,
         reviewsCount: 124,
         experienceYears: 10,
         avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80",
-        bio: "Expert in internal medicine, dermatology, and preventive wellness care for all pets and domestic animals.",
+        bio: "Expert in internal medicine, dermatology, preventive wellness care, and remote diagnosis for pets and domestic animals.",
         createdAt: new Date(),
         updatedAt: new Date()
       };
@@ -49,27 +49,27 @@ async function seedInitialData(isMemory = false) {
         email: "vikram@vetpulse.demo",
         passwordHash: doctor2Hash,
         role: "doctor",
-        specialty: "Veterinary Surgeon · Orthopedics · Emergency Care",
-        rating: 4.8,
-        reviewsCount: 98,
+        specialty: "Veterinary Surgeon · Orthopedics, Trauma & Emergency Critical Care",
+        rating: 4.9,
+        reviewsCount: 148,
         experienceYears: 12,
         avatar: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=400&q=80",
-        bio: "Specialist in trauma care, surgical interventions, and emergency animal critical care.",
+        bio: "Specialist in veterinary surgery, orthopedic repair, joint reconstruction, soft tissue surgery, and trauma emergency critical care.",
         createdAt: new Date(),
         updatedAt: new Date()
       };
       const doc3 = {
         _id: doctor3Id,
-        name: "Dr. Sophia Chen",
-        email: "sophia@vetpulse.demo",
+        name: "Dr. Rajesh Sharma",
+        email: "rajesh@vetpulse.demo",
         passwordHash: doctor3Hash,
         role: "doctor",
-        specialty: "Avian & Exotic Pet Specialist · Critical Care",
-        rating: 4.95,
-        reviewsCount: 142,
-        experienceYears: 14,
-        avatar: "https://images.unsplash.com/photo-1594824813566-78a9c336b9e2?auto=format&fit=crop&w=400&q=80",
-        bio: "Specialist in avian health, exotic pet medicine, small mammals, and feline critical care.",
+        specialty: "Senior Veterinary Specialist · Avian, Exotics & Small Pet Pediatrics",
+        rating: 4.8,
+        reviewsCount: 96,
+        experienceYears: 8,
+        avatar: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=400&q=80",
+        bio: "Specialist in exotic pet medicine, avian health, small mammal care, reptile wellness, and emergency pediatric pet consultation.",
         createdAt: new Date(),
         updatedAt: new Date()
       };
@@ -95,7 +95,7 @@ async function seedInitialData(isMemory = false) {
       };
       memoryDB.users.push(doc, doc2, doc3, admin, pat);
 
-      // Seed slots for doctor 1
+      // Seed slots for Doctor 1 (Dr. Ananya Nair)
       for (let day = 1; day <= 5; day++) {
         memoryDB.availabilities.push({
           _id: "av_1_" + day + "_1", doctorId: doctorId, dayOfWeek: day, start: "09:00", end: "13:00", duration: 30, price: 500, active: true
@@ -105,20 +105,27 @@ async function seedInitialData(isMemory = false) {
         });
       }
 
-      // Seed slots for doctor 2
+      // Seed slots for Doctor 2 (Dr. Vikram Rao)
       for (let day = 1; day <= 5; day++) {
         memoryDB.availabilities.push({
           _id: "av_2_" + day + "_1", doctorId: doctor2Id, dayOfWeek: day, start: "10:00", end: "14:00", duration: 30, price: 600, active: true
         });
-      }
-
-      // Seed slots for doctor 3
-      for (let day = 1; day <= 5; day++) {
         memoryDB.availabilities.push({
-          _id: "av_3_" + day + "_1", doctorId: doctor3Id, dayOfWeek: day, start: "11:00", end: "16:00", duration: 30, price: 700, active: true
+          _id: "av_2_" + day + "_2", doctorId: doctor2Id, dayOfWeek: day, start: "15:00", end: "18:00", duration: 45, price: 800, active: true
         });
       }
-      console.log("[DB] Memory DB seeded with Doctors, Admin (admin@vetpulse.demo), and Patient accounts.");
+
+      // Seed slots for Doctor 3 (Dr. Rajesh Sharma)
+      for (let day = 1; day <= 5; day++) {
+        memoryDB.availabilities.push({
+          _id: "av_3_" + day + "_1", doctorId: doctor3Id, dayOfWeek: day, start: "09:30", end: "13:30", duration: 30, price: 550, active: true
+        });
+        memoryDB.availabilities.push({
+          _id: "av_3_" + day + "_2", doctorId: doctor3Id, dayOfWeek: day, start: "14:30", end: "17:30", duration: 45, price: 750, active: true
+        });
+      }
+
+      console.log("[DB] Memory DB seeded with Doctors (Dr. Ananya, Dr. Vikram, Dr. Rajesh), Admin, and Patient accounts.");
     }
   } else {
     try {
@@ -129,36 +136,36 @@ async function seedInitialData(isMemory = false) {
           email: "doctor@vetpulse.demo",
           passwordHash: doctorHash,
           role: "doctor",
-          specialty: "Veterinary Specialist · General Care · Dermatology",
+          specialty: "Senior Veterinary Specialist · Internal Medicine & Dermatology",
           rating: 4.9,
           reviewsCount: 124,
           experienceYears: 10,
           avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80",
-          bio: "Expert in internal medicine, dermatology, and preventive wellness care."
+          bio: "Expert in internal medicine, dermatology, preventive wellness care, and remote diagnosis for pets."
         });
         const doctor2 = await User.create({
           name: "Dr. Vikram Rao",
           email: "vikram@vetpulse.demo",
           passwordHash: doctor2Hash,
           role: "doctor",
-          specialty: "Veterinary Surgeon · Orthopedics · Emergency Care",
-          rating: 4.8,
-          reviewsCount: 98,
+          specialty: "Veterinary Surgeon · Orthopedics, Trauma & Emergency Critical Care",
+          rating: 4.9,
+          reviewsCount: 148,
           experienceYears: 12,
           avatar: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=400&q=80",
-          bio: "Specialist in trauma care, surgical interventions, and emergency animal critical care."
+          bio: "Specialist in veterinary surgery, orthopedic repair, joint reconstruction, soft tissue surgery, and trauma emergency critical care."
         });
         const doctor3 = await User.create({
-          name: "Dr. Sophia Chen",
-          email: "sophia@vetpulse.demo",
+          name: "Dr. Rajesh Sharma",
+          email: "rajesh@vetpulse.demo",
           passwordHash: doctor3Hash,
           role: "doctor",
-          specialty: "Avian & Exotic Pet Specialist · Critical Care",
-          rating: 4.95,
-          reviewsCount: 142,
-          experienceYears: 14,
-          avatar: "https://images.unsplash.com/photo-1594824813566-78a9c336b9e2?auto=format&fit=crop&w=400&q=80",
-          bio: "Specialist in avian health, exotic pet medicine, small mammals, and feline critical care."
+          specialty: "Senior Veterinary Specialist · Avian, Exotics & Small Pet Pediatrics",
+          rating: 4.8,
+          reviewsCount: 96,
+          experienceYears: 8,
+          avatar: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=400&q=80",
+          bio: "Specialist in exotic pet medicine, avian health, small mammal care, reptile wellness, and emergency pediatric pet consultation."
         });
         await User.create({
           name: "System Administrator",
@@ -179,10 +186,12 @@ async function seedInitialData(isMemory = false) {
           rows.push({ doctorId: doctor1._id, dayOfWeek: day, start: "09:00", end: "13:00", duration: 30, price: 500 });
           rows.push({ doctorId: doctor1._id, dayOfWeek: day, start: "14:00", end: "18:00", duration: 45, price: 750 });
           rows.push({ doctorId: doctor2._id, dayOfWeek: day, start: "10:00", end: "14:00", duration: 30, price: 600 });
-          rows.push({ doctorId: doctor3._id, dayOfWeek: day, start: "11:00", end: "16:00", duration: 30, price: 700 });
+          rows.push({ doctorId: doctor2._id, dayOfWeek: day, start: "15:00", end: "18:00", duration: 45, price: 800 });
+          rows.push({ doctorId: doctor3._id, dayOfWeek: day, start: "09:30", end: "13:30", duration: 30, price: 550 });
+          rows.push({ doctorId: doctor3._id, dayOfWeek: day, start: "14:30", end: "17:30", duration: 45, price: 750 });
         }
         await Availability.insertMany(rows);
-        console.log("[DB] MongoDB seeded successfully with Admin and Doctors.");
+        console.log("[DB] MongoDB seeded successfully with 3 Certified Doctors, Admin, and Patient.");
       }
     } catch (err) {
       console.error("[DB] Error seeding MongoDB:", err);

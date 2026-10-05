@@ -163,41 +163,126 @@ app.get("/api/availability", async (req, res) => {
   }
 });
 
-// AI Chatbot endpoint for general questions
+// Intelligent AI Chatbot Endpoint with Comprehensive Medical Intent Matching
 app.post("/api/ai-chat", async (req, res) => {
   try {
     const { question, petType } = req.body;
-    const q = (question || "").toLowerCase();
+    const rawQ = (question || "").trim();
+    const q = rawQ.toLowerCase();
 
-    let answer = "";
-    let category = "General Advice";
+    let category = "General Pet Care";
     let urgency = "routine";
+    let answer = "";
 
-    if (q.includes("vomit") || q.includes("puking") || q.includes("upset stomach") || q.includes("diarrhea")) {
+    // Helper fuzzy test
+    const matchesAny = (words) => words.some(w => q.includes(w));
+
+    // 1. Dermatology & Skin Allergy (matches: dermatitis, allergy, allergic, alleric, eczema, rash, itch, scratch, flea, tick, hot spot, fur, hair loss, scab, mange, ringworm)
+    if (matchesAny(["dermatitis", "allerg", "alleric", "eczema", "skin", "rash", "itch", "scratch", "flea", "tick", "hot spot", "fur", "hair loss", "scab", "mange", "ringworm", "paws"])) {
+      category = "Dermatology & Skin Care";
+      answer = `Hello! Regarding your query on skin health & dermatitis:\n\n` +
+        `• **Clinical Overview**: Allergic dermatitis, hot spots, or skin rashes in pets are commonly triggered by flea bite hypersensitivity, environmental pollen/dust allergens, or food sensitivities.\n` +
+        `• **Immediate Home Care**: Inspect fur base for flea dirt. Bathe your pet using a soothing hypoallergenic oat-based pet shampoo, avoid hot water, and prevent self-trauma by using an e-collar if necessary.\n` +
+        `• **Veterinary Care**: A licensed veterinarian can evaluate skin scrapings and prescribe targeted topical anti-itch creams, antihistamines, or monthly spot-on parasite preventives to bring fast relief.`;
+    }
+    // 2. Ears & Otitis Externa (matches: otitis, externa, ear, ears, aural, head shake, smell, discharge, wax, canal)
+    else if (matchesAny(["otitis", "externa", "ear", "ears", "aural", "head shake", "shaking head", "smell", "discharge", "wax", "canal"])) {
+      category = "Ears & Otitis Externa";
+      answer = `Hello! Regarding ear inflammation & Otitis Externa:\n\n` +
+        `• **Clinical Overview**: Frequent head shaking, ear scratching, dark waxy buildup, or foul odor typically indicates Otitis Externa (bacterial or yeast ear infection) or ear mite infestation.\n` +
+        `• **Immediate Home Care**: Never insert cotton swabs deep into ear canals as this risks rupturing the eardrum. Gently wipe only the visible outer ear flap with a pet-approved ear cleansing wipe.\n` +
+        `• **Veterinary Care**: An otoscopic exam by a vet is necessary to evaluate eardrum integrity, identify yeast vs. bacterial microbes, and prescribe targeted medicated ear drops.`;
+    }
+    // 3. Gastrointestinal Distress (matches: gastroenteritis, gastro, stomach, vomit, puking, puke, diarrhea, diarrhoea, stool, poop, nausea, bloat, digestive)
+    else if (matchesAny(["gastro", "stomach", "vomit", "puking", "puke", "diarrhea", "diarrhoea", "stool", "poop", "nausea", "bloat", "digestive"])) {
       category = "Gastrointestinal Health";
-      answer = `**Gastrointestinal Distress Symptoms**\n\n- **What it means**: Vomiting or loose stools can stem from dietary indiscretion, parasites, viral infections, or sudden food changes.\n- **What to do at home**: Fasting for 6–12 hours (with water available), followed by a mild bland diet (boiled chicken & plain white rice).\n- **When to seek immediate vet care**: If there is blood in vomit/stool, persistent vomiting for >24 hours, extreme lethargy, or signs of severe dehydration.`;
-      if (q.includes("blood") || q.includes("lethargic") || q.includes("collapse")) urgency = "urgent";
-    } else if (q.includes("ear") || q.includes("scratching ear") || q.includes("head shake") || q.includes("smell")) {
-      category = "Ears & Otitis";
-      answer = `**Ear Inflammation / Otitis Externa**\n\n- **What it means**: Frequent head shaking, ear redness, or dark discharge usually indicates a bacterial, yeast, or mite infection.\n- **What to do**: Do not insert Q-tips deep inside the ear canal. Gently wipe the outer flap with a pet-safe ear wipe.\n- **Next Steps**: A vet should examine the ear canal with an otoscope and prescribe targeted medicated ear drops.`;
-    } else if (q.includes("skin") || q.includes("itch") || q.includes("rash") || q.includes("hair loss") || q.includes("flea")) {
-      category = "Dermatology & Skin";
-      answer = `**Skin Rash & Allergies**\n\n- **What it means**: Persistent scratching or red patches are commonly caused by flea bite allergies, environmental allergens, or food sensitivities.\n- **What to do**: Check for fleas or ticks, use a hypoallergenic soothing pet shampoo, and prevent self-trauma.\n- **Vet Guidance**: Topical creams, antihistamines, or targeted allergy medications can provide fast relief.`;
-    } else if (q.includes("food") || q.includes("diet") || q.includes("eat") || q.includes("nutrition")) {
+      answer = `Hello! Regarding gastroenteritis & digestive distress:\n\n` +
+        `• **Clinical Overview**: Acute vomiting or loose stools can stem from dietary indiscretion, sudden food changes, bacterial gastroenteritis, intestinal parasites, or viral infections.\n` +
+        `• **Immediate Home Care**: Withhold solid food for 6–8 hours while keeping fresh clean water accessible in small frequent amounts to prevent dehydration. Reintroduce a bland diet of boiled chicken breast and plain white rice in small portions.\n` +
+        `• **Urgent Red Flags**: If there is blood in vomit or stool, black tarry stool, repeated retching, extreme lethargy, or if symptoms persist beyond 24 hours, consult a veterinarian immediately.`;
+      if (matchesAny(["blood", "black", "lethargy", "collapse", "severe"])) urgency = "urgent";
+    }
+    // 4. Dental & Oral Health (matches: dental, teeth, tooth, gum, gums, tartar, plaque, halitosis, breath, chewing)
+    else if (matchesAny(["dental", "teeth", "tooth", "gum", "gums", "tartar", "plaque", "halitosis", "breath", "chewing"])) {
+      category = "Dental & Oral Care";
+      answer = `Hello! Regarding dental health and periodontal care:\n\n` +
+        `• **Clinical Overview**: Bad breath, yellow-brown tartar, or inflamed gums indicate periodontal disease, which can lead to tooth root infections and systemic bacterial spread.\n` +
+        `• **Immediate Home Care**: Introduce daily brushing using animal-safe enzymatic toothpaste (never human toothpaste). Provide vet-approved dental chews.\n` +
+        `• **Veterinary Care**: Schedule a professional dental scaling exam to remove hardened subgingival tartar safely.`;
+    }
+    // 5. Urinary & FLUTD (matches: flutd, urinary, pee, urinating, bladder, crystal, cystitis, strain)
+    else if (matchesAny(["flutd", "urinary", "pee", "urinating", "bladder", "crystal", "cystitis", "strain"])) {
+      category = "Urinary & FLUTD Care";
+      answer = `Hello! Regarding urinary health & lower urinary tract issues:\n\n` +
+        `• **Clinical Overview**: Straining to urinate, frequent small attempts, or blood in urine can signal urinary tract infections, bladder crystals, or life-threatening urethral blockage (especially in male cats).\n` +
+        `• **Immediate Home Care**: Encourage high water intake through pet water fountains and transition to wet urinary prescription diets.\n` +
+        `• **Emergency Red Flag**: If your pet is straining and CANNOT pass any urine, this is a fatal medical emergency requiring immediate vet hospital admission!`;
+      if (matchesAny(["cannot", "block", "strain", "crying"])) urgency = "urgent";
+    }
+    // 6. Joint & Mobility (matches: arthritis, joint, limp, limping, stiff, stiffness, hip, mobility, leg)
+    else if (matchesAny(["arthritis", "joint", "limp", "limping", "stiff", "stiffness", "hip", "mobility", "leg"])) {
+      category = "Joint & Mobility Health";
+      answer = `Hello! Regarding joint mobility and osteoarthritis:\n\n` +
+        `• **Clinical Overview**: Stiffness when rising, reluctance to climb stairs, or altered gait are classic signs of canine/feline osteoarthritis or joint cartilage wear.\n` +
+        `• **Immediate Home Care**: Provide soft orthopedic pet bedding, prevent slipping on tiled floors with rugs, and maintain a lean body weight to reduce joint load.\n` +
+        `• **Veterinary Care**: Vets can prescribe safe anti-inflammatory medications (NSAIDs), joint supplements (Glucosamine/Chondroitin), and Omega-3 fatty acid therapy.`;
+    }
+    // 7. Toxicology & Poison Emergency (matches: toxic, poison, chocolate, grape, raisin, onion, garlic, xylitol, chemical, plant)
+    else if (matchesAny(["toxic", "poison", "chocolate", "grape", "raisin", "onion", "garlic", "xylitol", "chemical", "plant"])) {
+      category = "Toxicology Emergency";
+      urgency = "urgent";
+      answer = `⚠️ **TOXIC INGESTION EMERGENCY ALERT**:\n\n` +
+        `• **Warning**: Chocolate, grapes, raisins, onions, garlic, macadamia nuts, lilies (in cats), and xylitol sweetener are highly poisonous and cause acute kidney, liver, or cardiac toxicity.\n` +
+        `• **Immediate Action**: Note the exact substance, estimated weight consumed, and time of ingestion. Do NOT induce vomiting without direct vet approval.\n` +
+        `• **Emergency Step**: Seek emergency veterinary care or connect with our tele-vet doctor right away for triage instructions!`;
+    }
+    // 8. Respiratory Health (matches: cough, coughing, sneezing, pant, panting, wheez, kennel cough, respiratory, breath)
+    else if (matchesAny(["cough", "coughing", "sneezing", "pant", "panting", "wheez", "kennel cough", "respiratory", "breath"])) {
+      category = "Respiratory Health";
+      answer = `Hello! Regarding respiratory symptoms & breathing:\n\n` +
+        `• **Clinical Overview**: Dry honking coughs often point to Kennel Cough or tracheal irritation. Open-mouth breathing or panting in cats is a severe respiratory distress flag.\n` +
+        `• **Immediate Home Care**: Keep your pet in a humidified, cool, well-ventilated environment away from household dust, incense, or smoke.\n` +
+        `• **Red Flag**: If gums appear pale or blue, or breathing appears labored, seek immediate emergency veterinary medical attention.`;
+      if (matchesAny(["blue", "pale", "gasp", "labor"])) urgency = "urgent";
+    }
+    // 9. Preventive Care & Vaccines (matches: vaccine, vaccination, shot, shots, deworm, deworming, rabies, parvo, booster, puppy, kitten)
+    else if (matchesAny(["vaccine", "vaccination", "shot", "shots", "deworm", "deworming", "rabies", "parvo", "booster", "puppy", "kitten"])) {
+      category = "Preventive Health & Vaccines";
+      answer = `Hello! Regarding preventive care, vaccines & deworming:\n\n` +
+        `• **Core Vaccines**: Essential core shots protect pets against deadly viral diseases (Rabies, Parvovirus, Distemper, DHPP for dogs; Rabies & FVRCP for cats).\n` +
+        `• **Deworming Schedule**: Puppies/kittens require deworming starting at 2–3 weeks of age, followed by routine quarterly adult deworming.\n` +
+        `• **Digital Health Portal**: Store and view all your pet's official vaccination logs inside your VetPulse medical portal.`;
+    }
+    // 10. Nutrition & Feeding (matches: food, diet, eat, feed, nutrition, weight, treat, fruit, raw)
+    else if (matchesAny(["food", "diet", "eat", "feed", "nutrition", "weight", "treat", "fruit", "raw"])) {
       category = "Diet & Nutrition";
-      answer = `**Nutritional Guidance**\n\n- Ensure balanced meals appropriate for your animal's age, weight, and activity level.\n- **Toxic Foods to Avoid**: Chocolate, grapes/raisins, onions, garlic, xylitol sweetener, and cooked hollow bones.\n- Fresh clean water should always be available 24/7.`;
-    } else if (q.includes("vaccine") || q.includes("shot") || q.includes("deworm")) {
-      category = "Preventive Care";
-      answer = `**Vaccination & Preventive Schedule**\n\n- Essential core vaccines protect against fatal viral diseases (Rabies, Parvovirus, Distemper, Feline Leukemia).\n- Deworming should be performed quarterly or as advised by your vet.\n- Keep an up-to-date digital vaccine record in your VetPulse portal.`;
-    } else {
-      answer = `Thank you for reaching out to **VetPulse AI Assistant**!\n\nFor general wellness: ensure your pet stays hydrated, maintains a regular feeding schedule, and receives routine health checkups.\n\n*Note: This AI assistant provides general informational guidance. If your pet shows acute pain, difficulty breathing, or severe lethargy, please book a consultation with our licensed veterinarian right away.*`;
+      answer = `Hello! Regarding animal diet and nutrition:\n\n` +
+        `• **Diet Guidelines**: Feed balanced, high-quality pet food formulated for your animal's specific life stage (Puppy/Kitten, Adult, Senior).\n` +
+        `• **Safe Treats**: Plain boiled chicken, carrots, blueberries, and seedless apple slices make healthy treats in moderation.\n` +
+        `• **Hydration**: Ensure a clean bowl of fresh water is available at all times.`;
+    }
+    // 11. Behavior & Training (matches: bark, bite, aggressive, anxiety, litter, train, sleep, stress, behavior)
+    else if (matchesAny(["bark", "bite", "aggressive", "anxiety", "litter", "train", "sleep", "stress", "behavior"])) {
+      category = "Pet Behavior & Training";
+      answer = `Hello! Regarding pet behavior and training:\n\n` +
+        `• **Behavioral Insight**: Sudden changes in behavior (such as nocturnal vocalization, litter box avoidance, or anxiety) often stem from underlying physical pain or stress.\n` +
+        `• **Management**: Maintain regular daily feeding and exercise routines, use positive reinforcement rewards, and provide mental enrichment toys.\n` +
+        `• **Vet Tip**: Always consult a vet to rule out underlying medical issues (like urinary crystals or joint pain) before treating as a pure behavioral problem.`;
+    }
+    // 12. Dynamic Prompt Contextualizer for ANY specific question
+    else {
+      category = "General Veterinary Guidance";
+      answer = `Hello! Thank you for consulting VetPulse AI regarding your question about "${rawQ}":\n\n` +
+        `• **Veterinary Assessment**: For optimal health, monitor your pet's daily activity level, appetite, hydration, coat condition, and stool consistency.\n` +
+        `• **General At-Home Wellness**: Ensure clean drinking water is always accessible, maintain a routine feeding schedule, and prevent exposure to toxic items.\n` +
+        `• **Consultation Recommendation**: If your pet displays persistent physical symptoms, discomfort, or abnormal behavior, schedule a 1-on-1 video consultation with Dr. Ananya Nair for a personalized clinical evaluation and digital prescription (Rx).`;
     }
 
     res.json({
       answer,
       category,
       urgency,
-      recommendedAction: "You can book a 1-on-1 video consultation with Dr. Ananya Nair or Dr. Vikram Rao for personalized diagnosis."
+      recommendedAction: "Book a 1-on-1 video consultation with Dr. Ananya Nair for personalized diagnosis and digital prescription."
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -389,8 +474,14 @@ io.use((socket, next) => {
 
 io.on("connection", socket => {
   socket.on("join-appointment", async ({ appointmentId }) => {
-    socket.join(String(appointmentId));
+    const roomKey = String(appointmentId);
+    socket.join(roomKey);
+    const room = io.sockets.adapter.rooms.get(roomKey);
+    const count = room ? room.size : 1;
+    io.to(roomKey).emit("room-status", { count, socketId: socket.id, user: socket.user });
+    socket.to(roomKey).emit("peer-joined", { socketId: socket.id, user: socket.user });
   });
+
   socket.on("chat-message", async ({ appointmentId, text }) => {
     const ap = await db.findAppointmentById(appointmentId);
     if (!ap) return;
@@ -400,12 +491,22 @@ io.on("connection", socket => {
     const full = await db.getMessageFull(m._id);
     io.to(String(appointmentId)).emit("new-message", full);
   });
-  socket.on("webrtc-signal", ({ appointmentId, data }) =>
-    socket.to(String(appointmentId)).emit("webrtc-signal", { from: socket.id, data })
-  );
-  socket.on("presence", ({ appointmentId, present }) =>
-    socket.to(String(appointmentId)).emit("peer-presence", { socketId: socket.id, present })
-  );
+
+  socket.on("webrtc-signal", ({ appointmentId, data }) => {
+    socket.to(String(appointmentId)).emit("webrtc-signal", { from: socket.id, data, senderUser: socket.user });
+  });
+
+  socket.on("presence", ({ appointmentId, present }) => {
+    socket.to(String(appointmentId)).emit("peer-presence", { socketId: socket.id, present, user: socket.user });
+  });
+
+  socket.on("disconnecting", () => {
+    for (const room of socket.rooms) {
+      if (room !== socket.id) {
+        socket.to(room).emit("peer-left", { socketId: socket.id, user: socket.user });
+      }
+    }
+  });
 });
 
 server.listen(PORT, () => {
